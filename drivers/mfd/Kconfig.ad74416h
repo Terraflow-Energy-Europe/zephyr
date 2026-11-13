@@ -1,0 +1,16 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+config MFD_AD74416H
+	bool "Analog Devices AD74416H software configurable I/O"
+	default y
+	depends on DT_HAS_ADI_AD74416H_ENABLED
+	depends on SPI
+	select CRC
+	help
+	  Enable the core driver for the Analog Devices AD74416H quad-channel
+	  software configurable input/output. The ADC, DAC and GPIO child
+	  drivers build on it; everything else is in
+	  <zephyr/drivers/mfd/ad74416h.h>. Enable GPIO when reset-gpios,
+	  alert-gpios or adc-rdy-gpios are used.
+

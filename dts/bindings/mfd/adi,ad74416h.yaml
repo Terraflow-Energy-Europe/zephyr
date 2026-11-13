@@ -1,0 +1,317 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  Analog Devices AD74416H quad-channel software configurable input/output.
+
+  The core node owns the SPI link. Optional child nodes expose the standard
+  Zephyr APIs (adi,ad74416h-adc, adi,ad74416h-dac, adi,ad74416h-gpio), and
+  channel@N nodes set the function of each channel at boot. Constants are in
+  <zephyr/dt-bindings/mfd/ad74416h.h>.
+
+  The device uses SPI mode 2 (CPOL = 1, CPHA = 0) and a CRC on every frame;
+  the driver sets both.
+
+  Example:
+
+    ad74416h: ad74416h@0 {
+      compatible = "adi,ad74416h";
+      reg = <0>;
+      #address-cells = <1>;
+      #size-cells = <0>;
+      spi-max-frequency = <DT_FREQ_M(10)>;
+      reset-gpios = <&gpioa 0 GPIO_ACTIVE_LOW>;
+      alert-gpios = <&gpioa 1 GPIO_ACTIVE_LOW>;
+      adi,diag-assign = <AD74416H_DIAG_TEMP AD74416H_DIAG_AVDD_HI
+                         AD74416H_DIAG_AVCC AD74416H_DIAG_DVCC>;
+
+      channel@0 {
+        reg = <0>;
+        adi,ch-func = <AD74416H_CH_FUNC_VOUT>;
+      };
+
+      channel@1 {
+        reg = <1>;
+        adi,ch-func = <AD74416H_CH_FUNC_RES_MEAS>;
+        adi,rtd-500ua;
+        adi,rtd-ref-1v;
+        adi,adc-range = <AD74416H_ADC_RANGE_0_12V>;
+      };
+
+      ad74416h_adc: adc {
+        compatible = "adi,ad74416h-adc";
+        #io-channel-cells = <1>;
+      };
+      ad74416h_dac: dac {
+        compatible = "adi,ad74416h-dac";
+        #io-channel-cells = <1>;
+      };
+      ad74416h_gpio: gpio {
+        compatible = "adi,ad74416h-gpio";
+        gpio-controller;
+        #gpio-cells = <2>;
+      };
+    };
+
+compatible: "adi,ad74416h"
+
+include: spi-device.yaml
+
+properties:
+  adi,dev-addr:
+    type: int
+    default: 0
+    enum: [0, 1, 2, 3]
+    description: |
+      SPI device address set by the AD0 and AD1 pins. Defaults to 0, AD0 and AD1 tied low, as on the
+      EV-AD74416H-ARDZ.
+
+  reset-gpios:
+    type: phandle-array
+    description: |
+      RESET pin, normally GPIO_ACTIVE_LOW. Without it the driver uses the
+      software reset keys.
+
+  alert-gpios:
+    type: phandle-array
+    description: ALERT pin (open drain), normally GPIO_ACTIVE_LOW.
+
+  adc-rdy-gpios:
+    type: phandle-array
+    description: |
+      ADC_RDY pin (open drain), normally GPIO_ACTIVE_LOW. Without it the driver
+      polls LIVE_STATUS for the end of a conversion sequence.
+
+  adi,thermal-reset:
+    type: boolean
+    description: Reset the device when the die reaches about 140 degC.
+
+  adi,diag-assign:
+    type: array
+    default: [0, 0, 0, 0]
+    description: |
+      Source of diagnostic slots 0 to 3 (AD74416H_DIAG_*). Read them through ADC channels 4 to 7.
+      The default is the power-on reset value of the register field.
+
+  adi,diag-rate:
+    type: int
+    default: 0
+    enum: [0, 1, 2, 3, 4, 5]
+    description: |
+      Diagnostic conversion rate (AD74416H_DIAG_RATE_*). The default is the power-on reset value of
+      the register field.
+
+child-binding:
+  description: |
+    Configuration of one channel, as a channel@N node directly under the
+    device node. Channels without a node stay in high impedance. Optional
+    integers left out keep the default the device loads for the selected
+    function.
+
+  properties:
+    reg:
+      type: int
+      required: true
+      enum: [0, 1, 2, 3]
+      description: Channel, 0 to 3 for A to D.
+
+    adi,ch-func:
+      type: int
+      required: true
+      enum: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12]
+      description: Channel function (AD74416H_CH_FUNC_*).
+
+    adi,vout-bipolar:
+      type: boolean
+      description: Voltage output range -12 V to +12 V instead of 0 V to 12 V.
+
+    adi,vout-4wire:
+      type: boolean
+      description: 4-wire voltage output feedback sensing.
+
+    adi,i-limit-8ma:
+      type: boolean
+      description: Voltage output current limit 8 mA instead of 16 mA.
+
+    adi,alarm-deglitch-20ms:
+      type: boolean
+      description: Output open/short alarm deglitch 20 ms instead of 4 ms.
+
+    adi,viout-drv-en-dly-200us:
+      type: boolean
+      description: IOUT_HART driver enable delay 200 us instead of 4 ms.
+
+    adi,avdd-select:
+      type: int
+      enum: [0, 1, 2]
+      description: Output stage supply (AD74416H_AVDD_*).
+
+    adi,slew:
+      type: int
+      default: 0
+      enum: [0, 1, 2]
+      description: |
+        DAC slewing (AD74416H_SLEW_*). The default is the power-on reset value of the register
+        field.
+
+    adi,slew-step:
+      type: int
+      default: 0
+      enum: [0, 1, 2, 3]
+      description: |
+        Linear slew step (AD74416H_SLEW_STEP_*). The default is the power-on reset value of the
+        register field.
+
+    adi,slew-rate:
+      type: int
+      default: 0
+      enum: [0, 1, 2, 3]
+      description: |
+        Linear slew update rate (AD74416H_SLEW_RATE_*). The default is the power-on reset value of
+        the register field.
+
+    adi,dac-code:
+      type: int
+      description: |
+        DAC code set before the function is enabled. Defaults to 0 V or 0 mA
+        (0x8000 for a bipolar voltage output). Loop powered functions use it
+        as the current limit.
+
+    adi,adc-range:
+      type: int
+      enum: [0, 1, 2, 3, 4, 5, 6, 7]
+      description: ADC range (AD74416H_ADC_RANGE_*).
+
+    adi,adc-mux:
+      type: int
+      enum: [0, 1, 2, 3, 4]
+      description: ADC input (AD74416H_ADC_MUX_*).
+
+    adi,adc-rate:
+      type: int
+      default: 1
+      enum: [0, 1, 3, 4, 6, 8, 9, 12, 13]
+      description: |
+        ADC conversion rate (AD74416H_ADC_RATE_*). The default 20 SPS is the reset value of
+        CONV_RATE.
+
+    adi,rtd-2wire:
+      type: boolean
+      description: 2-wire resistance measurement instead of 3-wire.
+
+    adi,rtd-500ua:
+      type: boolean
+      description: RTD excitation 500 uA instead of 1 mA.
+
+    adi,rtd-ref-1v:
+      type: boolean
+      description: RTD reference 1 V instead of 2 V.
+
+    adi,rtd-exc-swap:
+      type: boolean
+      description: Swap the 3-wire RTD excitation currents.
+
+    adi,din-comparator:
+      type: int
+      enum: [0, 1]
+      description: Digital input comparator enable.
+
+    adi,din-invert:
+      type: int
+      enum: [0, 1]
+      description: Invert the digital input comparator output.
+
+    adi,din-threshold:
+      type: int
+      description: Comparator threshold code (COMP_THRESH), 0 to 98.
+
+    adi,din-threshold-fixed:
+      type: boolean
+      description: Fixed threshold (-19 V to +30 V) instead of AVDD_HI scaled.
+
+    adi,din-sink:
+      type: int
+      default: 0
+      description: |
+        Digital input sink current code, 0 to 31. 0 is off. The default is the power-on reset value
+        of the register field.
+
+    adi,din-sink-range-high:
+      type: boolean
+      description: Sink current in 240 uA steps instead of 120 uA.
+
+    adi,din-debounce-time:
+      type: int
+      default: 11
+      description: |
+        Debounce time code, 0 to 31. 0 bypasses, 11 is 240 us. The default 240 us is the reset value
+        of DEBOUNCE_TIME.
+
+    adi,din-debounce-mode1:
+      type: boolean
+      description: Debounce mode 1 (counter) instead of mode 0 (integrator).
+
+    adi,din-counter:
+      type: boolean
+      description: Count debounced digital input edges.
+
+    adi,din-oc-detect:
+      type: boolean
+      description: Digital input open-circuit detection.
+
+    adi,din-sc-detect:
+      type: boolean
+      description: Digital input short-circuit detection.
+
+    adi,din-input-viout:
+      type: boolean
+      description: Unbuffered VIOUT digital input instead of VSENSEP.
+
+    adi,do-enable:
+      type: boolean
+      description: Enable the external FET sourcing digital output.
+
+    adi,do-gpio-control:
+      type: boolean
+      description: Drive the digital output FET from a GPIO pin (SEL_DO).
+
+    adi,do-t1:
+      type: int
+      default: 0
+      description: |
+        Digital output T1 code, 0 to 31. 0 bypasses. The default is the power-on reset value of the
+        register field.
+
+    adi,do-t2:
+      type: int
+      default: 23
+      description: |
+        Digital output T2 code, 0 to 31. 31 disables. The default 10 ms is the reset value of DO_T2.
+
+    adi,fet-leakage-comp:
+      type: boolean
+      description: FET leakage compensation (only while the output is disabled).
+
+    adi,burnout-viout:
+      type: int
+      default: 0
+      enum: [0, 1, 2, 3]
+      description: |
+        VIOUT burnout current (AD74416H_BURNOUT_*). The default is the power-on reset value of the
+        register field.
+
+    adi,burnout-viout-source:
+      type: boolean
+      description: Source the VIOUT burnout current instead of sinking it.
+
+    adi,burnout-vsensen:
+      type: int
+      default: 0
+      enum: [0, 1, 2, 3]
+      description: |
+        VSENSEN burnout current (AD74416H_BURNOUT_*). The default is the power-on reset value of the
+        register field.
+
+    adi,burnout-vsensen-source:
+      type: boolean
+      description: Source the VSENSEN burnout current instead of sinking it.
