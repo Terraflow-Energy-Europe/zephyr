@@ -1,0 +1,21 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  ADC of the AD74416H. Child of an adi,ad74416h node.
+
+  ADC channels 0 to 3 convert I/O channels A to D (24-bit results, range and
+  rate from the channel configuration). ADC channels 4 to 7 convert diagnostic
+  slots 0 to 3 (16-bit results). Use gain ADC_GAIN_1 and reference
+  ADC_REF_INTERNAL. Results are raw codes; see ad74416h_adc_code_to_nv().
+
+compatible: "adi,ad74416h-adc"
+
+include: adc-controller.yaml
+
+properties:
+  "#io-channel-cells":
+    const: 1
+
+io-channel-cells:
+  - input

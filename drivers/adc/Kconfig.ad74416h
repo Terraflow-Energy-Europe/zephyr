@@ -1,0 +1,29 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+config ADC_AD74416H
+	bool "Analog Devices AD74416H ADC driver"
+	default y
+	depends on DT_HAS_ADI_AD74416H_ADC_ENABLED
+	select MFD
+	help
+	  Enable the ADC driver of the Analog Devices AD74416H. ADC channels 0
+	  to 3 convert I/O channels A to D, channels 4 to 7 the diagnostics.
+
+if ADC_AD74416H
+
+config ADC_AD74416H_INIT_PRIORITY
+	int "Init priority"
+	default 81
+	help
+	  Must be greater than MFD_INIT_PRIORITY.
+
+config ADC_AD74416H_ACQUISITION_THREAD_STACK_SIZE
+	int "Stack size of the ADC acquisition thread"
+	default 1024
+
+config ADC_AD74416H_ACQUISITION_THREAD_PRIO
+	int "Priority of the ADC acquisition thread"
+	default 0
+
+endif # ADC_AD74416H
