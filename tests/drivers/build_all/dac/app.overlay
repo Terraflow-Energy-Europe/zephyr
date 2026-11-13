@@ -137,6 +137,7 @@
 				   <&test_gpio 0 0>,
 				   <&test_gpio 0 0>,
 				   <&test_gpio 0 0>,
+				   <&test_gpio 0 0>,
 				   <&test_gpio 0 0>;
 
 			test_spi_dac60508: dac60508@0 {
@@ -380,6 +381,18 @@
 				reg = <0x1a>;
 				spi-max-frequency = <0>;
 				#io-channel-cells = <1>;
+			};
+
+			test_spi_ad74416h: ad74416h@1b {
+				compatible = "adi,ad74416h";
+				status = "okay";
+				reg = <0x1b>;
+				spi-max-frequency = <0>;
+
+				test_spi_ad74416h_dac: dac {
+					compatible = "adi,ad74416h-dac";
+					#io-channel-cells = <1>;
+				};
 			};
 		};
 	};

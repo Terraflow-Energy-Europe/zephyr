@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+config DAC_AD74416H
+	bool "Analog Devices AD74416H DAC driver"
+	default y
+	depends on DT_HAS_ADI_AD74416H_DAC_ENABLED
+	select MFD
+	help
+	  Enable the DAC driver of the Analog Devices AD74416H. Channels 0 to 3
+	  are I/O channels A to D, 16-bit; the output is a voltage or a current
+	  depending on the channel function.
+
+config DAC_AD74416H_INIT_PRIORITY
+	int "Init priority"
+	default 81
+	depends on DAC_AD74416H
+	help
+	  Must be greater than MFD_INIT_PRIORITY.

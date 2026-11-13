@@ -1,0 +1,18 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  DAC of the AD74416H. Child of an adi,ad74416h node. DAC channels 0 to 3 are
+  I/O channels A to D, 16-bit resolution. The output is a voltage or current
+  depending on the channel function.
+
+compatible: "adi,ad74416h-dac"
+
+include: dac-controller.yaml
+
+properties:
+  "#io-channel-cells":
+    const: 1
+
+io-channel-cells:
+  - output
