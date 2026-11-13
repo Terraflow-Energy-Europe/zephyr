@@ -4,6 +4,7 @@
 zephyr_library()
 
 # zephyr-keep-sorted-start
+zephyr_library_sources_ifdef(CONFIG_EMUL_AD74416H mfd_ad74416h_emul.c)
 zephyr_library_sources_ifdef(CONFIG_MFD_AD559X mfd_ad559x.c)
 zephyr_library_sources_ifdef(CONFIG_MFD_AD559X_BUS_I2C mfd_ad559x_i2c.c)
 zephyr_library_sources_ifdef(CONFIG_MFD_AD559X_BUS_SPI mfd_ad559x_spi.c)
@@ -51,5 +52,9 @@ zephyr_library_sources_ifdef(CONFIG_NXP_LP_FLEXCOMM mfd_nxp_lp_flexcomm.c)
 # zephyr-keep-sorted-stop
 
 if(CONFIG_MFD_RV3028)
+  zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR})
+endif()
+
+if(CONFIG_EMUL_AD74416H)
   zephyr_include_directories(${CMAKE_CURRENT_LIST_DIR})
 endif()
