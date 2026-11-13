@@ -91,12 +91,30 @@ New Drivers
   Same as above, this will also be recomputed at the time of the release.
   Just link the driver, further details go in the binding description
 
+* :abbr:`ADC (Analog to Digital Converter)`
+
+  * :dtcompatible:`adi,ad74416h-adc`
+
+* :abbr:`DAC (Digital to Analog Converter)`
+
+  * :dtcompatible:`adi,ad74416h-dac`
+
+* :abbr:`GPIO (General Purpose Input/Output)`
+
+  * :dtcompatible:`adi,ad74416h-gpio`
+
+* Multi-Function Device
+
+  * :dtcompatible:`adi,ad74416h`
+
 New Samples
 ***********
 
 ..
   Same as above, this will also be recomputed at the time of the release.
   Just link the sample, further details go in the sample documentation itself.
+
+* :zephyr:code-sample:`ad74416h`
 
 Libraries / Subsystems
 **********************
