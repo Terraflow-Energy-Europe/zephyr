@@ -1,0 +1,98 @@
+/*
+ * Copyright (c) 2026 Terraflow Energy Europe
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * AD74416H on an emulated SPI bus, with ALERT and ADC_RDY on emulated GPIOs.
+ */
+
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/mfd/ad74416h.h>
+
+#define AD74416H_ADC_CH(n, res)                                                                    \
+	channel@n {                                                                                \
+		reg = <n>;                                                                         \
+		zephyr,gain = "ADC_GAIN_1";                                                        \
+		zephyr,reference = "ADC_REF_INTERNAL";                                             \
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;                                  \
+		zephyr,resolution = <res>;                                                         \
+	}
+
+&spi0 {
+	ad74416h: ad74416h@0 {
+		compatible = "adi,ad74416h";
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		spi-max-frequency = <10000000>;
+		adi,dev-addr = <1>;
+		alert-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
+		adc-rdy-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+		adi,diag-assign = <AD74416H_DIAG_TEMP AD74416H_DIAG_AVDD_HI
+				   AD74416H_DIAG_AVCC AD74416H_DIAG_DVCC>;
+
+		channel@0 {
+			reg = <0>;
+			adi,ch-func = <AD74416H_CH_FUNC_VOUT>;
+			adi,vout-bipolar;
+		};
+
+		channel@1 {
+			reg = <1>;
+			adi,ch-func = <AD74416H_CH_FUNC_RES_MEAS>;
+			adi,rtd-500ua;
+			adi,rtd-ref-1v;
+			adi,adc-range = <AD74416H_ADC_RANGE_0_12V>;
+		};
+
+		channel@2 {
+			reg = <2>;
+			adi,ch-func = <AD74416H_CH_FUNC_DIN_LOGIC>;
+			adi,din-threshold-fixed;
+			adi,din-threshold = <0x37>;
+			adi,din-sink = <0x14>;
+			adi,din-counter;
+		};
+
+		channel@3 {
+			reg = <3>;
+			adi,ch-func = <AD74416H_CH_FUNC_HIGH_IMP>;
+			adi,do-enable;
+			adi,do-t1 = <5>;
+		};
+
+		ad74416h_adc: adc {
+			compatible = "adi,ad74416h-adc";
+			#io-channel-cells = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			AD74416H_ADC_CH(0, 24);
+			AD74416H_ADC_CH(1, 24);
+			AD74416H_ADC_CH(2, 24);
+			AD74416H_ADC_CH(3, 24);
+			AD74416H_ADC_CH(4, 16);
+			AD74416H_ADC_CH(5, 16);
+			AD74416H_ADC_CH(6, 16);
+			AD74416H_ADC_CH(7, 16);
+		};
+
+		ad74416h_dac: dac {
+			compatible = "adi,ad74416h-dac";
+			#io-channel-cells = <1>;
+		};
+
+		ad74416h_gpio: gpio {
+			compatible = "adi,ad74416h-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
+};
+
+/ {
+	zephyr,user {
+		io-channels = <&ad74416h_adc 0>, <&ad74416h_adc 1>, <&ad74416h_adc 4>,
+			      <&ad74416h_adc 5>;
+	};
+};
