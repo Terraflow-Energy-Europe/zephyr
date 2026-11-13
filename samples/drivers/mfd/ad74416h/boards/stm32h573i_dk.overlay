@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2026 Terraflow Energy Europe
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * EV-AD74416H-ARDZ on the Arduino header of the STM32H573I-DK.
+ *
+ * SYNC is on D10, driven as a GPIO chip select so it rises after every
+ * 40-bit frame. RESET, ALERT and ADC_RDY are not wired here: check the
+ * evaluation board user guide for their header pins and add reset-gpios,
+ * alert-gpios and adc-rdy-gpios.
+ */
+
+#include <zephyr/dt-bindings/mfd/ad74416h.h>
+
+&arduino_spi {
+	/* Hardware NSS is replaced by a GPIO chip select on the same pin */
+	pinctrl-0 = <&spi2_sck_pi1 &spi2_miso_pi2 &spi2_mosi_pb15>;
+	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>; /* D10 */
+	status = "okay";
+
+	ad74416h: ad74416h@0 {
+		compatible = "adi,ad74416h";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(10)>;
+		adi,diag-assign = <AD74416H_DIAG_TEMP AD74416H_DIAG_AVDD_HI
+				   AD74416H_DIAG_AVCC AD74416H_DIAG_DVCC>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		/* Channel A: voltage input, 0 V to 12 V */
+		channel@0 {
+			reg = <0>;
+			adi,ch-func = <AD74416H_CH_FUNC_VIN>;
+		};
+
+		/* Channel B: voltage output, 0 V to 12 V, set by main.c */
+		channel@1 {
+			reg = <1>;
+			adi,ch-func = <AD74416H_CH_FUNC_VOUT>;
+		};
+
+		ad74416h_adc: adc {
+			compatible = "adi,ad74416h-adc";
+			#io-channel-cells = <1>;
+		};
+
+		ad74416h_gpio: gpio {
+			compatible = "adi,ad74416h-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+
+		ad74416h_dac: dac {
+			compatible = "adi,ad74416h-dac";
+			#io-channel-cells = <1>;
+		};
+	};
+};

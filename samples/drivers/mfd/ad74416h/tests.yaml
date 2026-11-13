@@ -1,0 +1,20 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+sample:
+  name: AD74416H software configurable I/O
+  description: Voltage output, voltage input and diagnostics on an AD74416H.
+tests:
+  sample.drivers.mfd.ad74416h:
+    build_only: true
+    tags:
+      - drivers
+      - mfd
+    depends_on:
+      - spi
+      - gpio
+    platform_allow:
+      - stm32h573i_dk
+    integration_platforms:
+      - stm32h573i_dk
+    filter: dt_compat_enabled("adi,ad74416h")
