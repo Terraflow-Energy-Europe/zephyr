@@ -1,0 +1,26 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  GPIO controller of the AD74416H. Child of an adi,ad74416h node.
+
+  Lines 0 to 5: GPIO_A to GPIO_F pins, input or output.
+  Lines 6 to 9: debounced digital input comparator of channels A to D
+  (AD74416H_GPIO_DIN(ch)), input only.
+  Lines 10 to 13: external FET digital output of channels A to D
+  (AD74416H_GPIO_DO(ch)), output only. Configuring one as an output enables
+  the digital output under SPI control.
+
+  Interrupts are not supported.
+
+compatible: "adi,ad74416h-gpio"
+
+include: [gpio-controller.yaml]
+
+properties:
+  "#gpio-cells":
+    const: 2
+
+gpio-cells:
+  - pin
+  - flags

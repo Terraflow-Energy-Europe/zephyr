@@ -1,0 +1,19 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+config GPIO_AD74416H
+	bool "Analog Devices AD74416H GPIO driver"
+	default y
+	depends on DT_HAS_ADI_AD74416H_GPIO_ENABLED
+	select MFD
+	help
+	  Enable the GPIO driver of the Analog Devices AD74416H: the GPIO_A to
+	  GPIO_F pins, the digital inputs and the digital outputs of the four
+	  channels.
+
+config GPIO_AD74416H_INIT_PRIORITY
+	int "Init priority"
+	default 81
+	depends on GPIO_AD74416H
+	help
+	  Must be greater than MFD_INIT_PRIORITY.

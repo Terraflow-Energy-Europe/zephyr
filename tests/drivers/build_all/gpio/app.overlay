@@ -552,6 +552,7 @@
 				    &test_gpio 0 0
 				    &test_gpio 0 0
 				    &test_gpio 0 0
+				    &test_gpio 0 0
 				    &test_gpio 0 0>;
 
 			test_spi_mcp23s17: mcp23s17@0 {
@@ -769,6 +770,19 @@
 				en-gpios = <&test_gpio 0 0>;
 				sync-gpios = <&test_gpio 0 0>;
 				crcen-gpios = <&test_gpio 0 0>;
+			};
+
+			test_spi_ad74416h: ad74416h@e {
+				compatible = "adi,ad74416h";
+				status = "okay";
+				reg = <0xe>;
+				spi-max-frequency = <0>;
+
+				test_spi_ad74416h_gpio: gpio {
+					compatible = "adi,ad74416h-gpio";
+					gpio-controller;
+					#gpio-cells = <2>;
+				};
 			};
 		};
 	};
