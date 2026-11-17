@@ -13,6 +13,8 @@ tests:
     depends_on:
       - spi
       - gpio
+    extra_args:
+      - SHIELD=eval_ad74416h_ardz
     platform_allow:
       - stm32h573i_dk
     integration_platforms:

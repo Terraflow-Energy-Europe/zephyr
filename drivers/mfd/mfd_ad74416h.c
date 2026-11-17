@@ -49,6 +49,7 @@ struct ad74416h_config {
 	struct gpio_dt_spec alert_gpio;
 	struct gpio_dt_spec adc_rdy_gpio;
 	uint8_t dev_addr;
+	bool internal_ref;
 	bool thermal_reset;
 	uint8_t diag_assign[AD74416H_NUM_DIAGS];
 	uint8_t diag_rate;
@@ -1174,9 +1175,15 @@ int ad74416h_thermal_reset_enable(const struct device *dev, bool enable)
 
 int ad74416h_power_optim_set(const struct device *dev, uint16_t pwr_optim_config)
 {
+	const struct ad74416h_config *config = dev->config;
 	struct ad74416h_data *data = dev->data;
 	uint16_t old;
 	int ret;
+
+	/* Without an external reference, clearing REF_EN would leave the device without one */
+	if (config->internal_ref) {
+		pwr_optim_config |= AD74416H_PWR_REF_EN;
+	}
 
 	k_mutex_lock(&data->lock, K_FOREVER);
 
@@ -1267,6 +1274,14 @@ static int apply_dt_config(const struct device *dev)
 	const struct ad74416h_config *config = dev->config;
 	uint16_t diag = 0;
 	int ret;
+
+	if (config->internal_ref) {
+		ret = ad74416h_reg_update(dev, AD74416H_REG_PWR_OPTIM_CONFIG, AD74416H_PWR_REF_EN,
+					  AD74416H_PWR_REF_EN);
+		if (ret != 0) {
+			return ret;
+		}
+	}
 
 	ret = ad74416h_thermal_reset_enable(dev, config->thermal_reset);
 	if (ret != 0) {
@@ -1459,6 +1474,7 @@ static int ad74416h_init(const struct device *dev)
 		.alert_gpio = GPIO_DT_SPEC_INST_GET_OR(n, alert_gpios, {0}),                       \
 		.adc_rdy_gpio = GPIO_DT_SPEC_INST_GET_OR(n, adc_rdy_gpios, {0}),                   \
 		.dev_addr = DT_INST_PROP(n, adi_dev_addr),                                         \
+		.internal_ref = DT_INST_PROP(n, adi_internal_ref),                                 \
 		.thermal_reset = DT_INST_PROP(n, adi_thermal_reset),                               \
 		.diag_assign = DT_INST_PROP(n, adi_diag_assign),                                   \
 		.diag_rate = DT_INST_PROP(n, adi_diag_rate),                                       \

@@ -26,6 +26,7 @@
 		#size-cells = <0>;
 		spi-max-frequency = <10000000>;
 		adi,dev-addr = <1>;
+		adi,internal-ref;
 		alert-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
 		adc-rdy-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
 		adi,diag-assign = <AD74416H_DIAG_TEMP AD74416H_DIAG_AVDD_HI

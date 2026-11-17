@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) 2026 Terraflow Energy Europe
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * EVAL-AD74416H-ARDZ, schematic 02_074829 Rev. C, jumpers in the default
+ * positions of user guide UG-2153 Table 1.
+ *
+ * Every digital signal crosses an ADuM341E or ADuM342E isolator, so the
+ * Arduino side only sees the isolator outputs. RESET (D4, header P40) and the
+ * GPIO_F input (A5, header P41) are open by default and are not described
+ * here; the driver then uses the software reset.
+ */
+
+#include <zephyr/dt-bindings/gpio/arduino-header-r3.h>
+#include <zephyr/dt-bindings/mfd/ad74416h.h>
+
+/ {
+	/*
+	 * Green LEDs DS1 to DS6 on GPIO_A to GPIO_F. Disabled by default: the
+	 * LED driver configures every pin as an output at boot, which conflicts
+	 * with the smart blocking diodes (P45, P47, P49, P51), with GPIO
+	 * controlled digital outputs and with GPIO_F driven from A5 (P41).
+	 */
+	ad74416h_leds: ad74416h-leds {
+		compatible = "gpio-leds";
+		status = "disabled";
+
+		ad74416h_led_a: led-a {
+			gpios = <&ad74416h_gpio 0 GPIO_ACTIVE_HIGH>;
+			label = "DS1 GPIO_A";
+		};
+
+		ad74416h_led_b: led-b {
+			gpios = <&ad74416h_gpio 1 GPIO_ACTIVE_HIGH>;
+			label = "DS2 GPIO_B";
+		};
+
+		ad74416h_led_c: led-c {
+			gpios = <&ad74416h_gpio 2 GPIO_ACTIVE_HIGH>;
+			label = "DS3 GPIO_C";
+		};
+
+		ad74416h_led_d: led-d {
+			gpios = <&ad74416h_gpio 3 GPIO_ACTIVE_HIGH>;
+			label = "DS4 GPIO_D";
+		};
+
+		ad74416h_led_e: led-e {
+			gpios = <&ad74416h_gpio 4 GPIO_ACTIVE_HIGH>;
+			label = "DS5 GPIO_E";
+		};
+
+		ad74416h_led_f: led-f {
+			gpios = <&ad74416h_gpio 5 GPIO_ACTIVE_HIGH>;
+			label = "DS6 GPIO_F";
+		};
+	};
+};
+
+&arduino_spi {
+	status = "okay";
+	/*
+	 * SYNC must rise after every 40-bit frame, so it is driven as a GPIO
+	 * chip select. Header P8 selects D10 (uc_SYNCB) by default.
+	 */
+	cs-gpios = <&arduino_header ARDUINO_HEADER_R3_D10 GPIO_ACTIVE_LOW>;
+
+	ad74416h: ad74416h@0 {
+		compatible = "adi,ad74416h";
+		reg = <0>;
+		/* Conservative until the isolator round-trip delay is validated */
+		spi-max-frequency = <DT_FREQ_M(1)>;
+		/* SPI address 0: both jumpers on P11 */
+		adi,dev-addr = <0>;
+		/*
+		 * The ADR4525 drives REFIO through P44, so adi,internal-ref is
+		 * not set. Add it only with P44 open.
+		 */
+		/*
+		 * Open-drain buffers U4 and U5 with 4.7 kOhm pull-ups to the
+		 * isolator supply, headers P42 and P43 closed.
+		 */
+		alert-gpios = <&arduino_header ARDUINO_HEADER_R3_D7 GPIO_ACTIVE_LOW>;
+		adc-rdy-gpios = <&arduino_header ARDUINO_HEADER_R3_D2 GPIO_ACTIVE_LOW>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ad74416h_adc: adc {
+			compatible = "adi,ad74416h-adc";
+			#io-channel-cells = <1>;
+		};
+
+		ad74416h_dac: dac {
+			compatible = "adi,ad74416h-dac";
+			#io-channel-cells = <1>;
+		};
+
+		ad74416h_gpio: gpio {
+			compatible = "adi,ad74416h-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
+};
+
+&arduino_i2c {
+	status = "okay";
+
+	/*
+	 * 24AA32A, A1 pulled up, A0 and A2 pulled down. It holds the board
+	 * identification read by the ADI ACE software, so it is read-only here.
+	 */
+	eeprom_eval_ad74416h_ardz: eeprom@52 {
+		compatible = "atmel,at24";
+		reg = <0x52>;
+		size = <DT_SIZE_K(4)>;
+		pagesize = <32>;
+		address-width = <16>;
+		timeout = <5>;
+		read-only;
+	};
+};
