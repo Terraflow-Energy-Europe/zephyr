@@ -1,0 +1,5 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+config SHIELD_EVAL_AD74416H_ARDZ
+	def_bool $(shields_list_contains,eval_ad74416h_ardz)

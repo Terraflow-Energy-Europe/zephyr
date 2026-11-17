@@ -1,0 +1,13 @@
+# Copyright (c) 2026 Terraflow Energy Europe
+# SPDX-License-Identifier: Apache-2.0
+
+shield:
+  name: eval_ad74416h_ardz
+  full_name: EVAL-AD74416H-ARDZ Evaluation Board
+  vendor: adi
+  supported_features:
+    - adc
+    - dac
+    - gpio
+    - led
+    - mtd

@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2026 Terraflow Energy Europe
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * D10 is SPI2 NSS (PA3) on this board. The shield drives it as a GPIO chip
+ * select, so drop NSS from the pin control.
+ */
+
+&arduino_spi {
+	pinctrl-0 = <&spi2_sck_pi1 &spi2_miso_pi2 &spi2_mosi_pb15>;
+};
