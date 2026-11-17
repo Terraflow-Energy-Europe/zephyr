@@ -23,17 +23,12 @@ using the conversion helpers.
 Requirements
 ************
 
-* An EV-AD74416H-ARDZ evaluation board on the Arduino header of the
-  :zephyr:board:`stm32h573i_dk`.
-* SYNC on D10, driven as a GPIO chip select so that it rises after every
-  40-bit frame.
-* The RESET, ALERT and ADC_RDY pins are not wired in the provided overlay. Add
-  ``reset-gpios``, ``alert-gpios`` and ``adc-rdy-gpios`` as described in the
-  evaluation board user guide.
-* The analog supplies of the evaluation board must be powered as described in
-  the evaluation board documentation.
+* An :ref:`eval_ad74416h_ardz` on the Arduino header of a board such as the
+  :zephyr:board:`stm32h573i_dk`, with the jumpers in their default positions.
+* A 24 V supply on the evaluation board power connector P54.
 
-The overlay is in :zephyr_file:`samples/drivers/mfd/ad74416h/boards`.
+The shield describes the wiring. The channel configuration is in
+:zephyr_file:`samples/drivers/mfd/ad74416h/app.overlay`.
 
 Building and Running
 ********************
@@ -41,6 +36,7 @@ Building and Running
 .. zephyr-app-commands::
    :zephyr-app: samples/drivers/mfd/ad74416h
    :board: stm32h573i_dk
+   :shield: eval_ad74416h_ardz
    :goals: build flash
    :compact:
 
@@ -52,7 +48,7 @@ Sample Output
    [00:00:00.010,000] <inf> mfd_ad74416h: AD74416H silicon revision 2
    [00:00:01.020,000] <inf> main: Channel A: 2499876 uV
    [00:00:01.021,000] <inf> main: temp: 31250 mdegC
-   [00:00:01.021,000] <inf> main: AVDD_HI: 24001234 uV
+   [00:00:01.021,000] <inf> main: AVDD_HI: 21001234 uV
 
 Notes
 *****

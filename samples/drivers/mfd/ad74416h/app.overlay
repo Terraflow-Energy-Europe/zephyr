@@ -1,0 +1,26 @@
+/*
+ * Copyright (c) 2026 Terraflow Energy Europe
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Channel configuration for the AD74416H described by the shield or board.
+ */
+
+#include <zephyr/dt-bindings/mfd/ad74416h.h>
+
+&ad74416h {
+	adi,diag-assign = <AD74416H_DIAG_TEMP AD74416H_DIAG_AVDD_HI
+			   AD74416H_DIAG_AVCC AD74416H_DIAG_DVCC>;
+
+	/* Channel A: voltage input, 0 V to 12 V */
+	channel@0 {
+		reg = <0>;
+		adi,ch-func = <AD74416H_CH_FUNC_VIN>;
+	};
+
+	/* Channel B: voltage output, 0 V to 12 V, set by main.c */
+	channel@1 {
+		reg = <1>;
+		adi,ch-func = <AD74416H_CH_FUNC_VOUT>;
+	};
+};
