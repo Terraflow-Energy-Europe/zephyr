@@ -82,6 +82,13 @@ properties:
       ADC_RDY pin (open drain), normally GPIO_ACTIVE_LOW. Without it the driver
       polls LIVE_STATUS for the end of a conversion sequence.
 
+  adi,internal-ref:
+    type: boolean
+    description: |
+      Enable the internal 2.5 V reference (REF_EN). The device then drives REFIO, so set this only
+      when no external reference is connected to REFIO. Without it the device expects an external
+      reference.
+
   adi,thermal-reset:
     type: boolean
     description: Reset the device when the die reaches about 140 degC.

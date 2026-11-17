@@ -85,6 +85,8 @@ ZTEST(ad74416h, test_reset_uses_keys_and_clears_alerts)
 
 	zassert_equal(ad74416h_emul_stats_get(emul)->resets, 1);
 	zassert_equal(reg(AD74416H_REG_ALERT_STATUS), 0, "alerts not cleared after reset");
+	zassert_true(reg(AD74416H_REG_PWR_OPTIM_CONFIG) & AD74416H_PWR_REF_EN,
+		     "internal reference not enabled after reset");
 }
 
 ZTEST(ad74416h, test_cal_mem_fault)
@@ -147,6 +149,9 @@ ZTEST(ad74416h, test_devicetree_config)
 
 	/* Diagnostics: TEMP, AVDD_HI, AVCC, DVCC */
 	zassert_equal(reg(AD74416H_REG_DIAG_ASSIGN), 0x2351);
+
+	/* adi,internal-ref */
+	zassert_equal(reg(AD74416H_REG_PWR_OPTIM_CONFIG), AD74416H_PWR_REF_EN);
 }
 
 ZTEST(ad74416h, test_function_switch_sequence)
@@ -541,8 +546,12 @@ ZTEST(ad74416h, test_device_control)
 	zassert_ok(ad74416h_thermal_reset_enable(dev, true));
 	zassert_equal(reg(AD74416H_REG_THERM_RST), AD74416H_THERM_RST_EN);
 
+	/* adi,internal-ref keeps REF_EN set */
 	zassert_ok(ad74416h_power_optim_set(dev, AD74416H_PWR_SENSE_HF_OPT(2)));
-	zassert_equal(reg(AD74416H_REG_PWR_OPTIM_CONFIG), AD74416H_PWR_SENSE_HF_OPT(2));
+	zassert_equal(reg(AD74416H_REG_PWR_OPTIM_CONFIG),
+		      AD74416H_PWR_SENSE_HF_OPT(2) | AD74416H_PWR_REF_EN);
+	zassert_ok(ad74416h_power_optim_set(dev, 0));
+	zassert_equal(reg(AD74416H_REG_PWR_OPTIM_CONFIG), AD74416H_PWR_REF_EN);
 }
 
 /* Unit conversions, against values from the data sheet tables */

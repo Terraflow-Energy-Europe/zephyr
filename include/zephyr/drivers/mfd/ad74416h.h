@@ -623,7 +623,8 @@ int ad74416h_thermal_reset_enable(const struct device *dev, bool enable);
 /**
  * @brief Put sense buffers in low power standby (PWR_OPTIM_CONFIG).
  *
- * Do not call during an ADC conversion sequence.
+ * Do not call during an ADC conversion sequence. With the adi,internal-ref devicetree property,
+ * AD74416H_PWR_REF_EN is always kept set.
  *
  * @param dev              AD74416H device
  * @param pwr_optim_config PWR_OPTIM_CONFIG value
