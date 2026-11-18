@@ -117,12 +117,9 @@ host. For more details please refer to the `Official DAPLink website`_.
 Flashing
 ========
 
-Flashing an application with a STLINK debugger
-----------------------------------------------
-
-First, connect the STLINK debugger to your host computer using the Micro-USB port.
-Then attach the debugger to the 10-pin ``DEBUG`` header on the SDP-K1. Finally
-connect the SDP-K1 to your host computer using the USB-C port.
+By default, ``west flash`` and ``west debug`` use OpenOCD with the onboard
+DAPLink (CMSIS-DAP). Connect the SDP-K1 to your host computer using the USB-C
+port.
 
 Run a serial host program to connect with your board:
 
@@ -143,8 +140,33 @@ You should see the following message on the console:
 
    Hello World! adi_sdp_k1
 
+Flashing an application with a STLINK debugger
+----------------------------------------------
+
+Connect the STLINK debugger to your host computer using the Micro-USB port.
+Then attach the debugger to the 10-pin ``DEBUG`` header on the SDP-K1. Finally
+connect the SDP-K1 to your host computer using the USB-C port.
+
+Set ``ADI_SDP_K1_DEBUG_ADAPTER`` to ``stlink`` when building. The value is the
+name of an OpenOCD ``interface/<name>.cfg`` file, and it is cached in the build
+directory, so ``west flash`` and ``west debug`` then use the STLINK.
+
+.. zephyr-app-commands::
+   :zephyr-app: samples/hello_world
+   :board: adi_sdp_k1
+   :gen-args: -DADI_SDP_K1_DEBUG_ADAPTER=stlink
+   :goals: build flash
+
 Debugging
 =========
+
+You can debug an application in the usual way, with the debug adapter selected
+as described in the Flashing section.
+
+.. zephyr-app-commands::
+   :zephyr-app: samples/hello_world
+   :board: adi_sdp_k1
+   :goals: debug
 
 .. _ADI SDP-K1 website:
    https://www.analog.com/en/design-center/evaluation-hardware-and-software/evaluation-boards-kits/sdp-k1.html
