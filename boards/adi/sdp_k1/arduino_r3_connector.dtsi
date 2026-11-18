@@ -37,8 +37,20 @@
 	};
 };
 
-arduino_i2c: &i2c1 {};
+/* D14 (SDA) and D15 (SCL). Disabled until a shield enables it. */
+arduino_i2c: &i2c1 {
+	pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb7>;
+	pinctrl-names = "default";
+};
 
-arduino_spi: &spi1 {};
+/*
+ * D11 (MOSI), D12 (MISO) and D13 (SCK). D10 (PA15) is a GPIO on the header,
+ * so the hardware NSS is not used: shields set cs-gpios on D10. Disabled until
+ * a shield enables it.
+ */
+arduino_spi: &spi1 {
+	pinctrl-0 = <&spi1_sck_pb3 &spi1_miso_pb4 &spi1_mosi_pa7>;
+	pinctrl-names = "default";
+};
 
 arduino_serial: &usart2 {};
