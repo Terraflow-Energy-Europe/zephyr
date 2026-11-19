@@ -18,9 +18,11 @@
 / {
 	/*
 	 * Green LEDs DS1 to DS6 on GPIO_A to GPIO_F. Disabled by default: the
-	 * LED driver configures every pin as an output at boot, which conflicts
-	 * with the smart blocking diodes (P45, P47, P49, P51), with GPIO
-	 * controlled digital outputs and with GPIO_F driven from A5 (P41).
+	 * LED driver configures every pin as an output at boot. With the
+	 * default jumpers the pins only drive the LEDs, but an output conflicts
+	 * with a smart blocking diode control (P45, P47, P49, P51 fitted), with
+	 * GPIO controlled digital outputs and with GPIO_F driven from A5 (P41
+	 * fitted).
 	 */
 	ad74416h_leds: ad74416h-leds {
 		compatible = "gpio-leds";
