@@ -151,10 +151,13 @@ LEDs
 ====
 
 The ``ad74416h_leds`` node describes DS1 to DS6 on GPIO_A to GPIO_F. It is
-disabled because the LED driver configures every pin as an output at boot,
-which would conflict with the smart blocking diodes, with GPIO controlled
-digital outputs and with GPIO_F driven from A5. Enable it in the application
-overlay when the GPIOs are used only for the LEDs:
+disabled because the LED driver configures every pin as an output at boot.
+With the default jumpers the GPIOs only drive the LEDs: the smart blocking
+diode headers P45, P47, P49 and P51 and the GPIO_F header P41 are open. An
+output would conflict with a fitted smart diode header, with GPIO controlled
+digital outputs and with GPIO_F driven from A5 through a fitted P41. Enable
+the node in the application overlay when the GPIOs are used only for the
+LEDs:
 
 .. code-block:: devicetree
 
